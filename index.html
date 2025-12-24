@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>安全閥計算器</title>
+    <title>安全閥性能計算器</title>
     <style>
         :root { --bg: #f2f2f7; --card: #fff; --blue: #007aff; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); padding: 20px; margin: 0; }
@@ -21,18 +21,18 @@
         <h2 style="text-align:center;">安全閥性能計算</h2>
         <div class="card">
             <label>銘牌設定壓力 (Ps)</label>
-            <input type="number" id="ps" value="30" inputmode="decimal">
+            <input type="number" id="ps" value="100" inputmode="decimal">
             <label>初噴壓力 (Pi)</label>
-            <input type="number" id="pi" value="30" inputmode="decimal">
+            <input type="number" id="pi" value="24" inputmode="decimal">
             <button onclick="calc()">執行計算</button>
         </div>
         <div class="card">
-            <div class="res"><span>初噴範圍(±3%)</span><span class="val" id="r1">--</span></div>
-            <div class="res"><span>過壓壓力(10%)</span><span class="val" id="r2">--</span></div>
+            <div class="res"><span>初噴範圍(Ps±3%)</span><span class="val" id="r1">--</span></div>
+            <div class="res"><span>過壓壓力(Ps*10%)</span><span class="val" id="r2">--</span></div>
             <div class="res"><span>釋放壓力(Pi+過壓)</span><span class="val" id="r3">--</span></div>
-            <div class="res"><span>噴出壓力範圍</span><span class="val" id="r4">--</span></div>
-            <div class="res"><span>噴降範圍(2%~15%)</span><span class="val" id="r5">--</span></div>
-            <div class="res hi"><b>回座判定範圍</b><span class="val" id="r6" style="font-size:20px;">--</span></div>
+            <div class="res"><span>噴出壓力範圍(Pi~釋放)</span><span class="val" id="r4">--</span></div>
+            <div class="res"><span>噴降範圍(Pi*2%~15%)</span><span class="val" id="r5">--</span></div>
+            <div class="res hi"><b>停噴(回座)範圍</b><span class="val" id="r6" style="font-size:20px;">--</span></div>
         </div>
     </div>
     <script>
@@ -40,16 +40,33 @@
             const ps = parseFloat(document.getElementById('ps').value);
             const pi = parseFloat(document.getElementById('pi').value);
             if (!isNaN(ps) && !isNaN(pi)) {
+                // 1. 初噴範圍 (以 Ps 為準)
                 document.getElementById('r1').innerText = (ps*0.97).toFixed(2) + "~" + (ps*1.03).toFixed(2);
-                const op = (ps*0.1).toFixed(2); document.getElementById('r2').innerText = op;
-                const rp = (pi+parseFloat(op)).toFixed(2); document.getElementById('r3').innerText = rp;
+                
+                // 2. 過壓壓力 (以 Ps 為準)
+                const op = (ps*0.1).toFixed(2); 
+                document.getElementById('r2').innerText = op;
+                
+                // 3. 釋放壓力 (Pi + 過壓)
+                const rp = (pi + parseFloat(op)).toFixed(2); 
+                document.getElementById('r3').innerText = rp;
+                
+                // 4. 噴出範圍
                 document.getElementById('r4').innerText = pi.toFixed(2) + "~" + rp;
-                const bMin = (ps*0.02).toFixed(2), bMax = (ps*0.15).toFixed(2);
+                
+                // 5. 噴降範圍 (依據 Pi 計算)
+                const bMin = (pi*0.02).toFixed(2);
+                const bMax = (pi*0.15).toFixed(2);
                 document.getElementById('r5').innerText = bMin + "~" + bMax;
-                document.getElementById('r6').innerText = (pi-bMax).toFixed(2) + "~" + (pi-bMin).toFixed(2);
+                
+                // 6. 停噴(回座)判定
+                const stopMin = (pi - bMax).toFixed(2);
+                const stopMax = (pi - bMin).toFixed(2);
+                document.getElementById('r6').innerText = stopMin + "~" + stopMax;
             }
         }
         window.onload = calc;
     </script>
 </body>
 </html>
+
