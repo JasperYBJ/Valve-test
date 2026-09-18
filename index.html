@@ -1,73 +1,924 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
+    <!-- =========================================================
+         基本網頁設定
+         ========================================================= -->
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>安全閥性能計算器</title>
-    <link rel="apple-touch-icon" href="icon-180.png">
+
+    <!--
+        width=device-width：
+        網頁寬度配合手機螢幕。
+
+        initial-scale=1.0：
+        初始縮放比例為 100%。
+
+        maximum-scale=1.0：
+        限制頁面縮放，避免操作時畫面被意外放大。
+
+        user-scalable=no：
+        關閉手勢縮放。
+    -->
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
+
+    <!-- 瀏覽器分頁名稱 -->
+    <title>安全閥測試</title>
+
+
+    <!-- =========================================================
+         iPhone / iPad 加入主畫面設定
+         ========================================================= -->
+
+    <!--
+        指定「加入主畫面」時使用的 App Icon。
+        icon-180.png 必須與 index.html 放在 GitHub 同一層。
+    -->
+    <link
+        rel="apple-touch-icon"
+        href="icon-180.png"
+    >
+
+    <!-- 允許從 iPhone 主畫面開啟時以 Web App 方式顯示 -->
+    <meta
+        name="apple-mobile-web-app-capable"
+        content="yes"
+    >
+
+    <!-- iPhone 狀態列樣式 -->
+    <meta
+        name="apple-mobile-web-app-status-bar-style"
+        content="default"
+    >
+
+    <!-- 加入主畫面後顯示的 App 名稱 -->
+    <meta
+        name="apple-mobile-web-app-title"
+        content="安全閥測試"
+    >
+
+    <!-- 瀏覽器介面主題色 -->
+    <meta
+        name="theme-color"
+        content="#f2f2f7"
+    >
+
+
     <style>
-        :root { --bg: #f2f2f7; --card: #fff; --blue: #007aff; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); padding: 20px; margin: 0; }
-        .card { background: var(--card); padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; }
-        input { width: 100%; padding: 15px; border: 1px solid #d1d1d6; border-radius: 10px; font-size: 20px; box-sizing: border-box; margin-bottom: 15px; }
-        button { width: 100%; padding: 16px; background: var(--blue); color: #fff; border: none; border-radius: 10px; font-size: 18px; font-weight: 600; }
-        .res { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 0.5px solid #eee; }
-        .val { font-weight: 700; color: #ff3b30; }
-        .hi { background: #fff9c4; margin: 10px -20px -20px; padding: 20px; border-radius: 0 0 15px 15px; border-top: 2px solid #fc0; }
-    </style>
-</head>
-<body>
-    <div style="max-width:400px; margin:0 auto;">
-        <h2 style="text-align:center;">安全閥性能計算</h2>
-        <div class="card">
-            <label>銘牌設定壓力 (Ps)</label>
-            <input type="number" id="ps" value="100" inputmode="decimal">
-            <label>初噴壓力 (Pi)</label>
-            <input type="number" id="pi" value="24" inputmode="decimal">
-            <button onclick="calc()">執行計算</button>
-        </div>
-        <div class="card">
-            <div class="res"><span>初噴範圍(Ps±3%)</span><span class="val" id="r1">--</span></div>
-            <div class="res"><span>過壓壓力(Ps*10%)</span><span class="val" id="r2">--</span></div>
-            <div class="res"><span>釋放壓力(Pi+過壓)</span><span class="val" id="r3">--</span></div>
-            <div class="res"><span>噴出壓力範圍(Pi~釋放)</span><span class="val" id="r4">--</span></div>
-            <div class="res"><span>噴降範圍(Ps*2%~15%)</span><span class="val" id="r5">--</span></div>
-            <div class="res hi"><b>停噴(回座)範圍</b><span class="val" id="r6" style="font-size:20px;">--</span></div>
-        </div>
-    </div>
-    <script>
-        function calc() {
-            const ps = parseFloat(document.getElementById('ps').value);
-            const pi = parseFloat(document.getElementById('pi').value);
-            if (!isNaN(ps) && !isNaN(pi)) {
-                // 1. 初噴範圍 (以 Ps 為準)
-                document.getElementById('r1').innerText = (ps*0.97).toFixed(2) + "~" + (ps*1.03).toFixed(2);
-                
-                // 2. 過壓壓力 (以 Ps 為準)
-                const op = (ps*0.1).toFixed(2); 
-                document.getElementById('r2').innerText = op;
-                
-                // 3. 釋放壓力 (Pi + 過壓)
-                const rp = (pi + parseFloat(op)).toFixed(2); 
-                document.getElementById('r3').innerText = rp;
-                
-                // 4. 噴出範圍
-                document.getElementById('r4').innerText = pi.toFixed(2) + "~" + rp;
-                
-                // 5. 噴降範圍 (依據 Ps 計算)
-                const bMin = (ps*0.02).toFixed(2);
-                const bMax = (ps*0.15).toFixed(2);
-                document.getElementById('r5').innerText = bMin + "~" + bMax;
-                
-                // 6. 停噴(回座)判定
-                const stopMin = (pi - bMax).toFixed(2);
-                const stopMax = (pi - bMin).toFixed(2);
-                document.getElementById('r6').innerText = stopMin + "~" + stopMax;
+
+        /* =========================================================
+           1. 全域顏色設定
+           ========================================================= */
+
+        :root {
+            --background-color: #f2f2f7;
+            --card-color: #ffffff;
+            --primary-blue: #007aff;
+            --result-red: #ff3b30;
+            --border-color: #d1d1d6;
+            --separator-color: #eeeeee;
+            --highlight-color: #fff9c4;
+            --highlight-border: #ffcc00;
+            --text-primary: #1c1c1e;
+            --text-secondary: #636366;
+        }
+
+
+        /* =========================================================
+           2. 固定整個 App 畫面
+           ========================================================= */
+
+        /*
+            html 與 body 固定為螢幕大小。
+
+            overflow: hidden：
+            禁止整個網頁上下捲動。
+
+            overscroll-behavior: none：
+            減少手指上下滑時的回彈／overscroll 行為。
+        */
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            overscroll-behavior: none;
+        }
+
+
+        body {
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "SF Pro Text",
+                "PingFang TC",
+                "Microsoft JhengHei",
+                sans-serif;
+
+            background: var(--background-color);
+            color: var(--text-primary);
+
+            /*
+                fixed + inset:0
+                將整個 App 固定在目前 viewport。
+            */
+            position: fixed;
+            inset: 0;
+
+            /*
+                padding 使用 safe-area，
+                避免 iPhone 瀏海／動態島／Home Indicator
+                影響內容位置。
+            */
+            padding:
+                max(16px, env(safe-area-inset-top))
+                16px
+                max(16px, env(safe-area-inset-bottom))
+                16px;
+
+            box-sizing: border-box;
+        }
+
+
+        /* =========================================================
+           3. App 主容器
+           ========================================================= */
+
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+
+        /* =========================================================
+           4. 頁面標題
+           ========================================================= */
+
+        .app-title {
+            text-align: center;
+            font-size: 26px;
+            font-weight: 700;
+            margin: 8px 0 18px 0;
+        }
+
+
+        /* =========================================================
+           5. 卡片共用樣式
+           ========================================================= */
+
+        .card {
+            background: var(--card-color);
+            padding: 20px;
+            border-radius: 15px;
+
+            box-shadow:
+                0 4px 10px rgba(0, 0, 0, 0.08);
+
+            margin-bottom: 16px;
+        }
+
+
+        /* =========================================================
+           6. 輸入區
+           ========================================================= */
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+
+        .input-group:last-of-type {
+            margin-bottom: 18px;
+        }
+
+
+        label {
+            display: block;
+
+            margin-bottom: 6px;
+
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+
+        /*
+            Ps / Pi 縮寫使用較淡的顏色，
+            讓名稱比較容易閱讀。
+        */
+
+        .symbol {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+
+        input {
+            width: 100%;
+
+            padding: 13px 14px;
+
+            border:
+                1px solid
+                var(--border-color);
+
+            border-radius: 10px;
+
+            background: #ffffff;
+
+            font-size: 20px;
+            font-weight: 500;
+
+            box-sizing: border-box;
+
+            /*
+                移除 iOS 預設 input 樣式差異。
+            */
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+
+        /*
+            使用者點選輸入框時，
+            用藍色外框提示目前正在輸入哪一欄。
+        */
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(0, 122, 255, 0.15);
+        }
+
+
+        /* =========================================================
+           7. 執行計算按鈕
+           ========================================================= */
+
+        .calculate-button {
+            width: 100%;
+
+            padding: 15px;
+
+            background: var(--primary-blue);
+            color: #ffffff;
+
+            border: none;
+            border-radius: 10px;
+
+            font-size: 18px;
+            font-weight: 600;
+
+            cursor: pointer;
+
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+
+        /*
+            按下按鈕時稍微縮小，
+            增加接近 iOS App 的觸控回饋。
+        */
+
+        .calculate-button:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+
+
+        /* =========================================================
+           8. 計算結果
+           ========================================================= */
+
+        .result-row {
+            display: flex;
+
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 12px;
+
+            min-height: 28px;
+
+            padding: 10px 0;
+
+            border-bottom:
+                0.5px solid
+                var(--separator-color);
+        }
+
+
+        /*
+            左側結果名稱
+        */
+
+        .result-label {
+            flex: 1;
+
+            font-size: 15px;
+            line-height: 1.3;
+        }
+
+
+        /*
+            右側計算數值
+        */
+
+        .result-value {
+            flex-shrink: 0;
+
+            font-size: 16px;
+            font-weight: 700;
+
+            color: var(--result-red);
+
+            text-align: right;
+
+            font-variant-numeric:
+                tabular-nums;
+        }
+
+
+        /* =========================================================
+           9. 停噴（回座）結果特別標示
+           ========================================================= */
+
+        .reseat-result {
+            background:
+                var(--highlight-color);
+
+            margin:
+                10px
+                -20px
+                -20px
+                -20px;
+
+            padding:
+                18px
+                20px;
+
+            border-top:
+                2px solid
+                var(--highlight-border);
+
+            border-radius:
+                0
+                0
+                15px
+                15px;
+        }
+
+
+        .reseat-result .result-label {
+            font-weight: 700;
+        }
+
+
+        .reseat-result .result-value {
+            font-size: 20px;
+        }
+
+
+        /* =========================================================
+           10. 小螢幕高度最佳化
+           ========================================================= */
+
+        /*
+            如果手機可用高度比較小，
+            自動稍微縮短上下間距。
+
+            目的：
+            儘量讓所有資料維持在單一畫面，
+            而不是重新開啟捲動。
+        */
+
+        @media (max-height: 700px) {
+
+            body {
+                padding-top:
+                    max(
+                        8px,
+                        env(safe-area-inset-top)
+                    );
+            }
+
+            .app-title {
+                margin:
+                    4px
+                    0
+                    10px;
+
+                font-size: 23px;
+            }
+
+            .card {
+                padding: 15px;
+                margin-bottom: 10px;
+            }
+
+            .input-group {
+                margin-bottom: 10px;
+            }
+
+            input {
+                padding: 10px 12px;
+            }
+
+            .calculate-button {
+                padding: 12px;
+            }
+
+            .result-row {
+                padding: 7px 0;
+            }
+
+            .reseat-result {
+                margin:
+                    8px
+                    -15px
+                    -15px;
+
+                padding:
+                    14px
+                    15px;
             }
         }
-        window.onload = calc;
-    </script>
-</body>
-</html>
 
+    </style>
+</head>
+
+
+<body>
+
+    <!-- =========================================================
+         App 主畫面
+         ========================================================= -->
+
+    <main class="app-container">
+
+        <!-- App 標題 -->
+        <h1 class="app-title">
+            安全閥測試
+        </h1>
+
+
+        <!-- =====================================================
+             輸入區
+             ===================================================== -->
+
+        <section class="card">
+
+            <!-- 銘牌設定壓力 Ps -->
+            <div class="input-group">
+
+                <label for="ps">
+                    銘牌設定壓力
+                    <span class="symbol">(Ps)</span>
+                </label>
+
+                <input
+                    type="number"
+                    id="ps"
+                    value="100"
+                    inputmode="decimal"
+                    step="any"
+                >
+
+            </div>
+
+
+            <!-- 實際初噴壓力 Pi -->
+            <div class="input-group">
+
+                <label for="pi">
+                    初噴壓力
+                    <span class="symbol">(Pi)</span>
+                </label>
+
+                <input
+                    type="number"
+                    id="pi"
+                    value="24"
+                    inputmode="decimal"
+                    step="any"
+                >
+
+            </div>
+
+
+            <!-- 執行計算 -->
+            <button
+                type="button"
+                class="calculate-button"
+                onclick="calculateSafetyValve()"
+            >
+                執行計算
+            </button>
+
+        </section>
+
+
+        <!-- =====================================================
+             計算結果區
+             ===================================================== -->
+
+        <section class="card">
+
+            <!-- 1. 初噴允許範圍 -->
+            <div class="result-row">
+
+                <span class="result-label">
+                    初噴範圍
+                    (Ps ±3%)
+                </span>
+
+                <span
+                    class="result-value"
+                    id="initialRange"
+                >
+                    --
+                </span>
+
+            </div>
+
+
+            <!-- 2. 過壓壓力 -->
+            <div class="result-row">
+
+                <span class="result-label">
+                    過壓壓力
+                    (Ps ×10%)
+                </span>
+
+                <span
+                    class="result-value"
+                    id="overPressure"
+                >
+                    --
+                </span>
+
+            </div>
+
+
+            <!-- 3. 釋放壓力 -->
+            <div class="result-row">
+
+                <span class="result-label">
+                    釋放壓力
+                    (Pi + 過壓)
+                </span>
+
+                <span
+                    class="result-value"
+                    id="releasePressure"
+                >
+                    --
+                </span>
+
+            </div>
+
+
+            <!-- 4. 噴出壓力範圍 -->
+            <div class="result-row">
+
+                <span class="result-label">
+                    噴出壓力範圍
+                    (Pi ～ 釋放)
+                </span>
+
+                <span
+                    class="result-value"
+                    id="dischargeRange"
+                >
+                    --
+                </span>
+
+            </div>
+
+
+            <!-- 5. 噴降壓力範圍 -->
+            <div class="result-row">
+
+                <span class="result-label">
+                    噴降範圍
+                    (Pi ×2%～15%)
+                </span>
+
+                <span
+                    class="result-value"
+                    id="blowdownRange"
+                >
+                    --
+                </span>
+
+            </div>
+
+
+            <!-- 6. 停噴／回座壓力 -->
+            <div class="result-row reseat-result">
+
+                <span class="result-label">
+                    停噴（回座）範圍
+                </span>
+
+                <span
+                    class="result-value"
+                    id="reseatRange"
+                >
+                    --
+                </span>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script>
+
+        /* =========================================================
+           安全閥測試計算程式
+           =========================================================
+
+           使用變數：
+
+           Ps = Nameplate Set Pressure
+                銘牌設定壓力
+
+           Pi = Initial Pop Pressure
+                實際初噴壓力
+
+
+           本程式計算項目：
+
+           1. 初噴允許範圍
+              Ps × 97% ～ Ps × 103%
+
+           2. 過壓壓力
+              Ps × 10%
+
+           3. 釋放壓力
+              Pi + 過壓壓力
+
+           4. 噴出壓力範圍
+              Pi ～ 釋放壓力
+
+           5. 噴降壓力範圍
+              Pi × 2% ～ Pi × 15%
+
+           6. 停噴（回座）壓力範圍
+              Pi - 噴降最大值
+                  ～
+              Pi - 噴降最小值
+
+
+           精度原則：
+
+           所有中間計算皆使用 JavaScript
+           原始數值進行運算。
+
+           不在中途使用 toFixed()。
+
+           只有最後輸出至畫面時，
+           才統一四捨五入顯示至小數點後 2 位。
+
+           這可以避免：
+           「中間值先四捨五入」
+           導致後續結果產生誤差。
+           ========================================================= */
+
+
+        /**
+         * 將數值格式化為小數點後 2 位。
+         *
+         * 注意：
+         * 此函式只負責「畫面顯示」，
+         * 不參與中間數值計算。
+         *
+         * 例如：
+         * 0.656 → "0.66"
+         * 4.920 → "4.92"
+         */
+        function formatPressure(value) {
+
+            return value.toFixed(2);
+
+        }
+
+
+        /**
+         * 執行安全閥各項壓力計算。
+         */
+        function calculateSafetyValve() {
+
+            /* -----------------------------------------------------
+               STEP 1
+               讀取使用者輸入
+               ----------------------------------------------------- */
+
+            const setPressure =
+                parseFloat(
+                    document
+                        .getElementById("ps")
+                        .value
+                );
+
+
+            const initialPopPressure =
+                parseFloat(
+                    document
+                        .getElementById("pi")
+                        .value
+                );
+
+
+            /* -----------------------------------------------------
+               STEP 2
+               確認輸入是否為有效數字
+               -----------------------------------------------------
+
+               只要 Ps 或 Pi 任一欄不是有效數字，
+               就停止計算。
+               ----------------------------------------------------- */
+
+            if (
+                Number.isNaN(setPressure) ||
+                Number.isNaN(initialPopPressure)
+            ) {
+
+                return;
+
+            }
+
+
+            /* -----------------------------------------------------
+               STEP 3
+               初噴壓力允許範圍
+
+               下限 = Ps × 97%
+               上限 = Ps × 103%
+               ----------------------------------------------------- */
+
+            const initialPressureMin =
+                setPressure * 0.97;
+
+            const initialPressureMax =
+                setPressure * 1.03;
+
+
+            /* -----------------------------------------------------
+               STEP 4
+               過壓壓力
+
+               過壓 = Ps × 10%
+               ----------------------------------------------------- */
+
+            const overPressure =
+                setPressure * 0.10;
+
+
+            /* -----------------------------------------------------
+               STEP 5
+               釋放壓力
+
+               釋放壓力 =
+               Pi + 過壓壓力
+               ----------------------------------------------------- */
+
+            const releasePressure =
+                initialPopPressure +
+                overPressure;
+
+
+            /* -----------------------------------------------------
+               STEP 6
+               噴降壓力
+
+               最小噴降 = Pi × 2%
+               最大噴降 = Pi × 15%
+
+               注意：
+               此處不進行四捨五入。
+               ----------------------------------------------------- */
+
+            const blowdownMin =
+                initialPopPressure * 0.02;
+
+            const blowdownMax =
+                initialPopPressure * 0.15;
+
+
+            /* -----------------------------------------------------
+               STEP 7
+               停噴（回座）壓力
+
+               最低回座壓力 =
+               Pi - 最大噴降
+
+               最高回座壓力 =
+               Pi - 最小噴降
+
+               同樣使用完整精度計算。
+               ----------------------------------------------------- */
+
+            const reseatPressureMin =
+                initialPopPressure -
+                blowdownMax;
+
+            const reseatPressureMax =
+                initialPopPressure -
+                blowdownMin;
+
+
+            /* -----------------------------------------------------
+               STEP 8
+               將結果輸出到畫面
+
+               只有到這一步，
+               才使用 formatPressure()
+               統一顯示到小數點後 2 位。
+               ----------------------------------------------------- */
+
+
+            // 1. 初噴範圍
+            document
+                .getElementById("initialRange")
+                .textContent =
+                    formatPressure(initialPressureMin)
+                    + "～" +
+                    formatPressure(initialPressureMax);
+
+
+            // 2. 過壓壓力
+            document
+                .getElementById("overPressure")
+                .textContent =
+                    formatPressure(overPressure);
+
+
+            // 3. 釋放壓力
+            document
+                .getElementById("releasePressure")
+                .textContent =
+                    formatPressure(releasePressure);
+
+
+            // 4. 噴出壓力範圍
+            document
+                .getElementById("dischargeRange")
+                .textContent =
+                    formatPressure(initialPopPressure)
+                    + "～" +
+                    formatPressure(releasePressure);
+
+
+            // 5. 噴降壓力範圍
+            document
+                .getElementById("blowdownRange")
+                .textContent =
+                    formatPressure(blowdownMin)
+                    + "～" +
+                    formatPressure(blowdownMax);
+
+
+            // 6. 停噴（回座）壓力範圍
+            document
+                .getElementById("reseatRange")
+                .textContent =
+                    formatPressure(reseatPressureMin)
+                    + "～" +
+                    formatPressure(reseatPressureMax);
+
+        }
+
+
+        /* =========================================================
+           網頁載入完成後自動計算一次
+
+           因此使用者第一次開啟 App 時，
+           不需要先按「執行計算」，
+           就能看到預設值的計算結果。
+           ========================================================= */
+
+        window.addEventListener(
+            "load",
+            calculateSafetyValve
+        );
+
+    </script>
+
+</body>
+
+</html>
