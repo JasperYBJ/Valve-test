@@ -31,7 +31,7 @@
             <div class="res"><span>過壓壓力(Ps*10%)</span><span class="val" id="r2">--</span></div>
             <div class="res"><span>釋放壓力(Pi+過壓)</span><span class="val" id="r3">--</span></div>
             <div class="res"><span>噴出壓力範圍(Pi~釋放)</span><span class="val" id="r4">--</span></div>
-            <div class="res"><span>噴降範圍(Pi*2%~15%)</span><span class="val" id="r5">--</span></div>
+            <div class="res"><span>噴降範圍(Ps*2%~15%)</span><span class="val" id="r5">--</span></div>
             <div class="res hi"><b>停噴(回座)範圍</b><span class="val" id="r6" style="font-size:20px;">--</span></div>
         </div>
     </div>
@@ -54,9 +54,9 @@
                 // 4. 噴出範圍
                 document.getElementById('r4').innerText = pi.toFixed(2) + "~" + rp;
                 
-                // 5. 噴降範圍 (依據 Pi 計算)
-                const bMin = (pi*0.02).toFixed(2);
-                const bMax = (pi*0.15).toFixed(2);
+                // 5. 噴降範圍 (依據 Ps 計算)
+                const bMin = (ps*0.02).toFixed(2);
+                const bMax = (ps*0.15).toFixed(2);
                 document.getElementById('r5').innerText = bMin + "~" + bMax;
                 
                 // 6. 停噴(回座)判定
